@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projeto LAVINA — Simulações interativas de física</title>
+  <meta name="description" content="LAVINA — LAboratório Virtual INterAtivo. Simulações gratuitas de experimentos de física, direto no navegador, para a sala de aula e para quem é curioso.">
+  <meta name="theme-color" content="#060912">
+  <meta property="og:title" content="Projeto LAVINA — A física que você pode tocar">
+  <meta property="og:description" content="Simulações interativas e gratuitas de experimentos de física, direto no navegador.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip" href="#experimentos">Pular para os experimentos</a>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="logo" href="#top" aria-label="Projeto LAVINA — início">
+        <img class="logo-mark" src="assets/img/logo.svg" alt="" width="34" height="34">
+        <span class="logo-text">LAVINA<small>Laboratório Virtual</small></span>
+      </a>
+      <button class="menu-btn" type="button" aria-label="Abrir menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+      <nav class="nav-links" aria-label="Principal">
+        <a href="#experimentos">Experimentos</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#sobre">Sobre o projeto</a>
+        <a class="btn btn-primary btn-sm" href="#experimentos">Começar agora</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <canvas id="field" aria-hidden="true"></canvas>
+      <div class="container">
+        <div class="hero-content">
+          <span class="pill reveal"><b>LAVINA</b> LAboratório Virtual INterAtivo</span>
+          <h1 class="reveal" data-d="1">A física que<br>você pode <em class="grad-text">tocar.</em></h1>
+          <p class="lead reveal" data-d="2">Simulações interativas, gratuitas e direto no navegador para explorar mecânica, eletromagnetismo e muito mais — na sala de aula ou em casa.</p>
+          <div class="hero-ctas reveal" data-d="3">
+            <a class="btn btn-primary" href="#experimentos">Explorar experimentos
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a class="btn btn-ghost" href="#como-funciona">Como funciona</a>
+          </div>
+          <div class="stats reveal" data-d="3">
+            <div class="stat"><strong id="exp-count">7</strong><span>simulações prontas</span></div>
+            <div class="stat"><strong>100%</strong><span>gratuito e online</span></div>
+            <div class="stat"><strong>0</strong><span>instalações</span></div>
+            <div class="stat"><strong>2020</strong><span>desde</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-hint" aria-hidden="true">
+        <span class="dot"></span>
+        <span>Você é uma carga <b id="charge-sign" data-sign="pos">positiva (+)</b> · clique para inverter</span>
+      </div>
+    </section>
+
+    <!-- ============ MARQUEE ============ -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Leis de Newton</span><span>Campo elétrico</span><span>Momento linear</span><span>Centro de massa</span>
+        <span>Plano inclinado</span><span>Lançamento oblíquo</span><span>Forças de atrito</span><span>Gráficos de cinemática</span>
+        <span>Leis de Newton</span><span>Campo elétrico</span><span>Momento linear</span><span>Centro de massa</span>
+        <span>Plano inclinado</span><span>Lançamento oblíquo</span><span>Forças de atrito</span><span>Gráficos de cinemática</span>
+      </div>
+    </div>
+
+    <!-- ============ EXPERIMENTOS ============ -->
+    <section class="section" id="experimentos">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Experimentos</span>
+          <h2>Escolha um fenômeno.<br><span class="grad-text">Mexa nele.</span></h2>
+          <p>Cada experimento traz a simulação, os conceitos envolvidos e sugestões de uso. Altere parâmetros, observe o que acontece e construa sua intuição.</p>
+        </div>
+        <div class="filters reveal" id="filters" role="group" aria-label="Filtrar por área"></div>
+        <div class="grid all" id="exp-grid"></div>
+      </div>
+    </section>
+
+    <!-- ============ COMO FUNCIONA ============ -->
+    <section class="section how" id="como-funciona">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Como funciona</span>
+          <h2>Do clique ao<br>“entendi!” em três passos.</h2>
+          <p>Desenvolvido inicialmente para a sala de aula, mas fique à vontade para usá-lo da forma que mais ajudar no seu aprendizado.</p>
+        </div>
+        <div class="steps">
+          <article class="step reveal">
+            <span class="step-num">01 — Escolha</span>
+            <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+            <h3>Encontre um experimento</h3>
+            <p>Navegue pela seção de experimentos e filtre por área: cinemática, dinâmica, sistemas de partículas ou eletromagnetismo.</p>
+          </article>
+          <article class="step reveal" data-d="1">
+            <span class="step-num">02 — Contextualize</span>
+            <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2Zm0 0A2 2 0 0 0 6 22h12"/><path d="M8 7h6M8 11h4"/></svg></div>
+            <h3>Entenda o que observar</h3>
+            <p>Cada página reúne os conceitos envolvidos e sugestões de uso para orientar a exploração — individual ou em grupo.</p>
+          </article>
+          <article class="step reveal" data-d="2">
+            <span class="step-num">03 — Experimente</span>
+            <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6.5L4.5 19a1.5 1.5 0 0 0 1.3 2.25h12.4A1.5 1.5 0 0 0 19.5 19L14 9.5V3"/><path d="M7 15h10"/></svg></div>
+            <h3>Teste suas hipóteses</h3>
+            <p>A simulação abre ali mesmo, no navegador. Mude os parâmetros, faça previsões e confira se a física concorda com você.</p>
+          </article>
+        </div>
+        <div class="note reveal">
+          <p><strong>Sempre em evolução.</strong> Alguns experimentos ainda podem não ter todas as informações — o projeto é atualizado continuamente. E em breve haverá uma forma de você contribuir com o LAVINA!</p>
+          <a class="btn btn-ghost btn-sm" href="#experimentos">Ver experimentos</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PARA QUEM ============ -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Para quem</span>
+          <h2>Tem algo aqui<br>para todo mundo.</h2>
+        </div>
+        <div class="audience reveal">
+          <div class="aud">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
+            <h3>Estudantes</h3>
+            <p>Veja a teoria ganhar movimento. Revise conceitos, teste exercícios e desenvolva intuição física no seu ritmo.</p>
+          </div>
+          <div class="aud">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <h3>Educadores</h3>
+            <p>Leve experimentos para a sala sem laboratório físico. Projete, proponha desafios e discuta resultados com a turma.</p>
+          </div>
+          <div class="aud">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <h3>Curiosos</h3>
+            <p>Nunca é tarde para se surpreender com o mundo físico. Explore sem compromisso — e sem fórmulas, se preferir.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SOBRE ============ -->
+    <section class="section" id="sobre" style="padding-top: 0">
+      <div class="container about-grid">
+        <div class="reveal">
+          <span class="eyebrow">Sobre o projeto</span>
+          <div class="acronym" style="margin-top: 24px" aria-label="LAboratório VIrtual INterAtivo">
+            <div><b>LA</b>boratório</div>
+            <div><b>VI</b>rtual</div>
+            <div><b>IN</b>ter<b>A</b>tivo</div>
+          </div>
+        </div>
+        <div class="about-text reveal" data-d="1">
+          <div class="since"><strong>2020</strong> início do projeto</div>
+          <p>O Projeto LAVINA é uma tentativa direta de <strong>democratizar o acesso ao lado lúdico e interativo da física</strong>. Temos o compromisso de oferecer apoio ao aprendizado por meio da simulação de experimentos, em uma plataforma online e completamente gratuita.</p>
+          <p>As simulações buscam um resultado próximo ao dos <em>physlets</em>, usando JavaScript puro sempre que possível — leves, rápidas e acessíveis em qualquer dispositivo.</p>
+          <div class="pillars">
+            <div class="pillar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><div><strong>100% gratuito</strong><span>Sem cadastro, sem anúncios.</span></div></div>
+            <div class="pillar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><div><strong>No navegador</strong><span>Nada para instalar.</span></div></div>
+            <div class="pillar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-6 6 6 6M16 6l6 6-6 6"/></svg><div><strong>JavaScript puro</strong><span>Leve e rápido.</span></div></div>
+            <div class="pillar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><div><strong>Feito para a sala</strong><span>Pensado com educadores.</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section>
+      <div class="container">
+        <div class="cta reveal">
+          <span class="orbit o1"></span><span class="orbit o2"></span>
+          <h2>Prepare-se para explorar, experimentar e <span class="grad-text">se surpreender.</span></h2>
+          <p>Comece agora e veja a física de uma nova maneira com o Projeto LAVINA.</p>
+          <div class="hero-ctas">
+            <a class="btn btn-primary" href="#experimentos">Explorar experimentos
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <a class="logo" href="#top">
+            <img class="logo-mark" src="assets/img/logo.svg" alt="" width="34" height="34">
+            <span class="logo-text">LAVINA<small>Laboratório Virtual</small></span>
+          </a>
+          <p>Simulações interativas e gratuitas para tornar o aprendizado de física mais acessível, visual e divertido.</p>
+        </div>
+        <div>
+          <h4>Navegação</h4>
+          <ul>
+            <li><a href="#top">Início</a></li>
+            <li><a href="#experimentos">Experimentos</a></li>
+            <li><a href="#como-funciona">Como funciona</a></li>
+            <li><a href="#sobre">Sobre o projeto</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Experimentos</h4>
+          <ul id="foot-exps"></ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Projeto LAVINA.</span>
+        <span>Este site não é uma publicação oficial do IFGW — acesse <a href="https://www.ifi.unicamp.br" target="_blank" rel="noopener">www.ifi.unicamp.br</a> para a versão institucional.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/field.js"></script>
+</body>
+</html>

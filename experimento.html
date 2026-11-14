@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Experimento — Projeto LAVINA</title>
+  <meta name="description" content="Simulação interativa de física do Projeto LAVINA.">
+  <meta name="theme-color" content="#060912">
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip" href="#sim">Pular para a simulação</a>
+
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="logo" href="index.html" aria-label="Projeto LAVINA — início">
+        <img class="logo-mark" src="assets/img/logo.svg" alt="" width="34" height="34">
+        <span class="logo-text">LAVINA<small>Laboratório Virtual</small></span>
+      </a>
+      <button class="menu-btn" type="button" aria-label="Abrir menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+      <nav class="nav-links" aria-label="Principal">
+        <a href="index.html#experimentos" class="active">Experimentos</a>
+        <a href="index.html#como-funciona">Como funciona</a>
+        <a href="index.html#sobre">Sobre o projeto</a>
+        <a class="btn btn-primary btn-sm" href="index.html#experimentos">Todos os experimentos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="exp-root"></main>
+
+  <section class="section" id="more" style="padding-bottom: 0">
+    <div class="container">
+      <div class="section-head reveal" style="margin-bottom: 36px">
+        <span class="eyebrow">Continue explorando</span>
+        <h2 style="font-size: clamp(30px, 4vw, 44px)">Outros experimentos</h2>
+      </div>
+      <div class="grid" id="more-grid"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <a class="logo" href="index.html">
+            <img class="logo-mark" src="assets/img/logo.svg" alt="" width="34" height="34">
+            <span class="logo-text">LAVINA<small>Laboratório Virtual</small></span>
+          </a>
+          <p>Simulações interativas e gratuitas para tornar o aprendizado de física mais acessível, visual e divertido.</p>
+        </div>
+        <div>
+          <h4>Navegação</h4>
+          <ul>
+            <li><a href="index.html">Início</a></li>
+            <li><a href="index.html#experimentos">Experimentos</a></li>
+            <li><a href="index.html#como-funciona">Como funciona</a></li>
+            <li><a href="index.html#sobre">Sobre o projeto</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Experimentos</h4>
+          <ul id="foot-exps"></ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Projeto LAVINA.</span>
+        <span>Este site não é uma publicação oficial do IFGW — acesse <a href="https://www.ifi.unicamp.br" target="_blank" rel="noopener">www.ifi.unicamp.br</a> para a versão institucional.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/experiment.js"></script>
+</body>
+</html>
