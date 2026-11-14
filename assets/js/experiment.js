@@ -66,6 +66,7 @@
           <iframe id="frame" src="${esc(e.url)}" title="Simulação: ${esc(e.title)}" allow="fullscreen" allowfullscreen loading="eager"></iframe>
         </div>
       </div>
+      <a class="btn btn-primary mobile-open" href="${esc(e.url)}" target="_blank" rel="noopener">Abrir simulação em tela cheia ${svg.ext}</a>
 
       <div class="exp-layout">
         <div class="panel reveal">
