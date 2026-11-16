@@ -1,10 +1,60 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Página não encontrada — Projeto LAVINA</title>
-<link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css"></head>
-<body><main class="container not-found"><span class="eyebrow">Erro 404</span>
-<h1 style="margin-top:20px">Essa página saiu de órbita.</h1>
-<p>O endereço que você acessou não existe (ou mudou de lugar).</p>
-<a class="btn btn-primary" href="./">Voltar ao início</a></main></body></html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--
+    Base dinâmica para a página 404.
+    O GitHub Pages serve este arquivo em QUALQUER caminho inexistente
+    (ex.: /mockup-site-lavina/foo/bar), e aí os caminhos relativos
+    (assets/css/style.css, ./) quebrariam. O script abaixo, que precisa vir
+    ANTES de qualquer link relativo, injeta um <base href>:
+      - em *.github.io (site de projeto), a base é o 1º segmento do caminho
+        (/mockup-site-lavina/);
+      - em qualquer outro host, a base é "/" (site servido na raiz).
+    Para hospedar em uma subpasta de outro servidor (ou num site de usuário
+    *.github.io, sem subpasta), defina BASE manualmente, ex.: "/lavina/" ou "/".
+  -->
+  <script>
+    (function () {
+      var BASE = null; // sobrescreva aqui se necessário
+      if (BASE === null) {
+        var seg = location.pathname.split('/')[1];
+        BASE = /\.github\.io$/i.test(location.hostname) && seg ? '/' + seg + '/' : '/';
+      }
+      var b = document.createElement('base');
+      b.href = BASE;
+      document.head.appendChild(b);
+    })();
+  </script>
+  <title>Página não encontrada — Projeto LAVINA</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#060912">
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/img/icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="logo" href="./" aria-label="Projeto LAVINA — início">
+        <img class="logo-mark" src="assets/img/logo.svg" alt="" width="34" height="34">
+        <span class="logo-text">LAVINA<small>Laboratório Virtual</small></span>
+      </a>
+      <a class="btn btn-ghost btn-sm" href="./#experimentos">Experimentos</a>
+    </div>
+  </header>
+
+  <main class="container not-found">
+    <span class="eyebrow">Erro 404</span>
+    <h1 style="margin-top:20px">Essa página saiu de órbita.</h1>
+    <p>O endereço que você acessou não existe (ou mudou de lugar).</p>
+    <a class="btn btn-primary" href="./">Voltar ao início</a>
+  </main>
+</body>
+</html>

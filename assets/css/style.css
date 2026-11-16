@@ -414,3 +414,14 @@ footer { border-top: 1px solid var(--border); padding: 64px 0 36px; margin-top: 
 @media (max-width: 720px) {
   .mobile-open { display: flex; justify-content: center; width: 100%; margin-top: 14px; }
 }
+
+/* ---------- Impressão ---------- */
+@media print {
+  *, *::before, *::after { background: transparent !important; color: #111 !important; box-shadow: none !important; text-shadow: none !important; animation: none !important; transition: none !important; }
+  html, body { background: #fff !important; }
+  .grad-text { -webkit-text-fill-color: #111; }
+  .nav, .skip, .menu-btn, .marquee, canvas, iframe, .frame-wrap, .hero-ctas, .mobile-open { display: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .card, .panel, .pager a { border: 1px solid #ccc !important; break-inside: avoid; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 85%; }
+}
