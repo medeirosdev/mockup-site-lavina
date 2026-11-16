@@ -15,6 +15,10 @@
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   window.LAVINA_ESC = esc;
 
+  // Verdadeiro se o foco está em um campo de texto (ou num iframe), onde atalhos não devem agir.
+  const isTyping = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT|IFRAME)$/.test(el.tagName));
+  window.LAVINA_IS_TYPING = isTyping;
+
   /* ---------- Navegação ---------- */
   const nav = $(".nav");
   if (nav) {
@@ -100,21 +104,116 @@
     attachGlow(grid);
 
     const filters = $("#filters");
+    const cards = $$(".card:not(.soon)", grid);
+    const search = $("#exp-search");
+    const searchBox = search && search.closest(".search");
+    const clearBtn = $("#exp-search-clear");
+    const empty = $("#exp-empty");
+    const emptyMsg = $("#exp-empty-msg");
+    const status = $("#exp-status");
+
+    // Texto normalizado: minúsculo e sem acentos ("Elétrico" -> "eletrico").
+    const norm = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    const haystacks = EXP.map(e => norm([e.title, e.summary, e.area, ...(e.concepts || [])].join(" ")));
+
     const areas = ["Todos", ...Object.keys(AREAS).filter(a => EXP.some(e => e.area === a))];
-    filters.innerHTML = areas.map(a => {
-      const n = a === "Todos" ? EXP.length : EXP.filter(e => e.area === a).length;
-      return `<button class="chip" type="button" data-area="${esc(a)}" aria-pressed="${a === "Todos"}">${esc(a)}<span class="n">${n}</span></button>`;
-    }).join("");
-    filters.addEventListener("click", ev => {
-      const b = ev.target.closest(".chip"); if (!b) return;
-      $$(".chip", filters).forEach(c => c.setAttribute("aria-pressed", c === b));
-      const area = b.dataset.area;
-      grid.classList.toggle("all", area === "Todos");
-      $$(".card:not(.soon)", grid).forEach(c => {
-        c.hidden = !(area === "Todos" || c.dataset.area === area);
+    filters.innerHTML = areas.map(a =>
+      `<button class="chip" type="button" data-area="${esc(a)}" aria-pressed="${a === "Todos"}">${esc(a)}<span class="n" aria-hidden="true"></span><span class="sr-only"></span></button>`
+    ).join("");
+    const chips = $$(".chip", filters);
+
+    let area = "Todos";
+    let statusTimer;
+
+    function apply() {
+      const q = search ? search.value.trim() : "";
+      const terms = norm(q).split(/\s+/).filter(Boolean);
+      const hit = haystacks.map(h => terms.every(t => h.includes(t)));
+
+      // contagem de cada área considerando a busca atual
+      chips.forEach(c => {
+        const a = c.dataset.area;
+        const n = hit.filter((h, i) => h && (a === "Todos" || EXP[i].area === a)).length;
+        $(".n", c).textContent = n;
+        $(".sr-only", c).textContent = ` (${n} ${n === 1 ? "experimento" : "experimentos"})`;
+        c.classList.toggle("zero", n === 0);
+        c.setAttribute("aria-pressed", a === area);
+      });
+
+      let shown = 0;
+      cards.forEach((c, i) => {
+        const ok = hit[i] && (area === "Todos" || EXP[i].area === area);
+        c.hidden = !ok;
+        if (ok) shown++;
         c.classList.add("in");
       });
+
+      // layout "bento" (card em destaque + card "em breve") só sem nenhum filtro
+      const filtered = area !== "Todos" || terms.length > 0;
+      grid.classList.toggle("all", !filtered);
+      grid.hidden = shown === 0;
+      if (empty) {
+        empty.hidden = shown > 0;
+        if (shown === 0) {
+          const where = area !== "Todos" ? ` em <b>${esc(area)}</b>` : "";
+          emptyMsg.innerHTML = q
+            ? `Não encontramos nada para “<b>${esc(q)}</b>”${where}. Tente outro termo ou explore todas as áreas.`
+            : `Ainda não há experimentos${where}.`;
+        }
+      }
+      if (searchBox) searchBox.classList.toggle("has-value", q.length > 0);
+      if (clearBtn) clearBtn.hidden = q.length === 0;
+
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => {
+        if (!status) return;
+        status.textContent = !filtered ? "" : shown === 0
+          ? "Nenhum experimento encontrado."
+          : `${shown} ${shown === 1 ? "experimento encontrado" : "experimentos encontrados"}.`;
+      }, 400);
+    }
+
+    function clearSearch() {
+      if (search) search.value = "";
+      apply();
+    }
+
+    filters.addEventListener("click", ev => {
+      const b = ev.target.closest(".chip"); if (!b) return;
+      area = b.dataset.area;
+      apply();
     });
+
+    if (search) {
+      search.addEventListener("input", apply);
+      search.addEventListener("keydown", ev => {
+        if (ev.key !== "Escape") return;
+        ev.preventDefault();
+        if (search.value) clearSearch();
+        else search.blur();
+      });
+    }
+    if (clearBtn) clearBtn.addEventListener("click", () => { clearSearch(); search.focus(); });
+    const reset = $("#exp-reset");
+    if (reset) reset.addEventListener("click", () => {
+      area = "Todos";
+      clearSearch();
+      (search || chips[0]).focus();
+    });
+
+    // "/" foca a busca quando não se está digitando em outro campo
+    document.addEventListener("keydown", ev => {
+      if (!search || ev.key !== "/" || ev.ctrlKey || ev.metaKey || ev.altKey || ev.defaultPrevented) return;
+      if (isTyping(document.activeElement)) return;
+      ev.preventDefault();
+      const bar = $("#filter-bar");
+      if (bar) bar.classList.add("in");
+      const r = search.getBoundingClientRect();
+      if (r.top < 90 || r.bottom > window.innerHeight) search.scrollIntoView({ block: "center" });
+      search.focus({ preventScroll: true });
+    });
+
+    apply();
   }
 
   /* ---------- Lista do rodapé ---------- */

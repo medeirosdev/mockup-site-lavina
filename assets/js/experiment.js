@@ -11,6 +11,8 @@
     chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>',
     reload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg>',
     full: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
     ext: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M10 14 21 3M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/></svg>',
     bulb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg>',
     atom: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>'
@@ -47,6 +49,13 @@
         <span class="tag ${AREAS[e.area] || "c-cyan"}" style="margin-top:28px">${esc(e.area)}</span>
         <h1 class="exp-title" style="margin-top:14px">${esc(e.title)}</h1>
         <p class="exp-summary">${esc(e.summary)}</p>
+        <div class="exp-actions">
+          <button class="btn btn-ghost btn-sm btn-share" type="button" data-share>${svg.share} Compartilhar</button>
+          <div class="kbd-hint" aria-hidden="true">
+            <kbd>F</kbd><span>tela cheia</span>
+            <kbd>←</kbd><kbd>→</kbd><span>anterior / próximo</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -57,7 +66,8 @@
           <div class="url" title="${esc(e.url)}">${esc(e.url.replace(/^https?:\/\//, ""))}</div>
           <div class="tools">
             <button class="icon-btn" type="button" id="btn-reload" aria-label="Reiniciar simulação" title="Reiniciar">${svg.reload}</button>
-            <button class="icon-btn" type="button" id="btn-full" aria-label="Tela cheia" title="Tela cheia">${svg.full}</button>
+            <button class="icon-btn" type="button" id="btn-full" aria-label="Tela cheia" title="Tela cheia (F)" aria-keyshortcuts="F">${svg.full}</button>
+            <button class="icon-btn" type="button" data-share aria-label="Compartilhar" title="Compartilhar">${svg.share}</button>
             <a class="icon-btn" href="${esc(e.url)}" target="_blank" rel="noopener" aria-label="Abrir em nova aba" title="Abrir em nova aba">${svg.ext}</a>
           </div>
         </div>
@@ -85,8 +95,8 @@
       </div>
 
       <nav class="pager" aria-label="Navegar entre experimentos">
-        <a href="experimento.html?id=${encodeURIComponent(prev.id)}"><small>← Anterior</small><strong>${esc(prev.title)}</strong></a>
-        <a class="next" href="experimento.html?id=${encodeURIComponent(next.id)}"><small>Próximo →</small><strong>${esc(next.title)}</strong></a>
+        <a href="experimento.html?id=${encodeURIComponent(prev.id)}" aria-keyshortcuts="ArrowLeft"><small>← Anterior</small><strong>${esc(prev.title)}</strong></a>
+        <a class="next" href="experimento.html?id=${encodeURIComponent(next.id)}" aria-keyshortcuts="ArrowRight"><small>Próximo →</small><strong>${esc(next.title)}</strong></a>
       </nav>
     </section>`;
 
@@ -100,9 +110,83 @@
     wrap.classList.remove("loaded");
     frame.src = e.url;
   });
-  document.getElementById("btn-full").addEventListener("click", () => {
-    const el = wrap;
-    (el.requestFullscreen || el.webkitRequestFullscreen || (() => window.open(e.url, "_blank"))).call(el);
+  const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+  function toggleFullscreen() {
+    if (fsElement()) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      return;
+    }
+    const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+    if (!req) { window.open(e.url, "_blank", "noopener"); return; }
+    const p = req.call(wrap);
+    if (p && p.catch) p.catch(() => {});
+  }
+  document.getElementById("btn-full").addEventListener("click", toggleFullscreen);
+
+  /* ---------- Compartilhar ---------- */
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
+  toast.innerHTML = `${svg.check}<span></span>`;
+  document.body.appendChild(toast);
+  let toastTimer;
+  function showToast(msg) {
+    clearTimeout(toastTimer);
+    toast.lastChild.textContent = msg;
+    toast.classList.add("show");
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+      toastTimer = setTimeout(() => { toast.lastChild.textContent = ""; }, 400);
+    }, 2600);
+  }
+
+  async function copyLink(url) {
+    try {
+      await navigator.clipboard.writeText(url);
+      return true;
+    } catch (_) {
+      // alternativa para contextos sem a Clipboard API (ex.: http sem TLS)
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none";
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (_) { ok = false; }
+      ta.remove();
+      return ok;
+    }
+  }
+
+  async function share() {
+    const url = location.href;
+    const data = { title: document.title, text: e.summary, url };
+    if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
+      try {
+        await navigator.share(data);
+        return;
+      } catch (err) {
+        if (err && err.name === "AbortError") return; // usuário cancelou
+      }
+    }
+    showToast((await copyLink(url)) ? "Link copiado!" : "Não foi possível copiar o link.");
+  }
+  root.querySelectorAll("[data-share]").forEach(b => b.addEventListener("click", share));
+
+  /* ---------- Atalhos de teclado ---------- */
+  document.addEventListener("keydown", ev => {
+    if (ev.defaultPrevented || ev.ctrlKey || ev.metaKey || ev.altKey || ev.shiftKey) return;
+    if (window.LAVINA_IS_TYPING(document.activeElement)) return;
+    if ((ev.key === "f" || ev.key === "F") && !ev.repeat) {
+      ev.preventDefault();
+      toggleFullscreen();
+    } else if ((ev.key === "ArrowLeft" || ev.key === "ArrowRight") && !fsElement()) {
+      ev.preventDefault();
+      const to = ev.key === "ArrowLeft" ? prev : next;
+      location.href = `experimento.html?id=${encodeURIComponent(to.id)}`;
+    }
   });
 
   renderMore(idx);
