@@ -1,6 +1,6 @@
 /* Campo elétrico interativo do hero.
- * Cargas flutuam suavemente; o cursor do visitante também é uma carga.
- * Clique para inverter o sinal da carga do cursor. */
+ * Cargas flutuam suavemente; o cursor (ou o dedo) do visitante também é uma carga.
+ * Clique/toque para inverter o sinal da carga do visitante. */
 (function () {
   const canvas = document.getElementById("field");
   if (!canvas) return;
@@ -8,7 +8,9 @@
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let W = 0, H = 0, DPR = 1, spacing = 34, cols = 0, rows = 0;
-  let t = 0, running = true, rafId = null;
+  let t = 0, last = -1, running = true, rafId = null;
+  const BANDS = 8;          // setas agrupadas por faixa de intensidade: 1 stroke() por faixa
+  const FRAME_MS = 33;      // ~30 fps: o campo muda devagar, não precisa de 60
 
   const charges = [
     { q: 1.0,  ax: 0.72, ay: 0.32, rx: 0.08, ry: 0.10, sx: 0.00021, sy: 0.00017, p: 0.0 },
@@ -18,16 +20,26 @@
   ];
   const mouse = { x: -9999, y: -9999, q: 1.4, on: false, tx: -9999, ty: -9999 };
 
+  // estilos pré-calculados de cada faixa
+  const bandStyle = Array.from({ length: BANDS }, (_, k) => {
+    const s = (k + 0.5) / BANDS;
+    return {
+      color: `hsla(${190 + s * 70}, 95%, ${62 + s * 18}%, ${0.12 + s * 0.6})`,
+      width: 1 + s * 0.6
+    };
+  });
+
   function resize() {
     const r = canvas.getBoundingClientRect();
+    if (!r.width || !r.height) return;
     DPR = Math.min(window.devicePixelRatio || 1, 2);
     W = r.width; H = r.height;
-    canvas.width = W * DPR; canvas.height = H * DPR;
+    canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     spacing = W < 640 ? 28 : 34;
     cols = Math.ceil(W / spacing) + 1;
     rows = Math.ceil(H / spacing) + 1;
-    if (reduce) draw();
+    if (reduce || !running) draw();
   }
 
   function positions() {
@@ -45,8 +57,8 @@
     const ps = positions();
     const soft = 900;
     const maxLen = spacing * 0.78;
+    const paths = Array.from({ length: BANDS }, () => new Path2D());
 
-    ctx.lineCap = "round";
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
         const x = i * spacing + (j % 2 ? spacing / 2 : 0);
@@ -65,22 +77,22 @@
         const ux = ex / m, uy = ey / m;
         const x0 = x - ux * len / 2, y0 = y - uy * len / 2;
         const x1 = x + ux * len / 2, y1 = y + uy * len / 2;
-
-        // cor: ciano (fraco) -> branco-violeta (forte)
-        const a = 0.12 + s * 0.6;
-        const hue = 190 + s * 70;
-        ctx.strokeStyle = `hsla(${hue}, 95%, ${62 + s * 18}%, ${a})`;
-        ctx.lineWidth = 1 + s * 0.6;
-        ctx.beginPath();
-        ctx.moveTo(x0, y0); ctx.lineTo(x1, y1);
-        // ponta da seta
         const h = 3 + s * 2.5;
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x1 - ux * h - uy * h * 0.6, y1 - uy * h + ux * h * 0.6);
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x1 - ux * h + uy * h * 0.6, y1 - uy * h - ux * h * 0.6);
-        ctx.stroke();
+
+        const path = paths[Math.min(BANDS - 1, (s * BANDS) | 0)];
+        path.moveTo(x0, y0); path.lineTo(x1, y1);
+        path.moveTo(x1, y1);
+        path.lineTo(x1 - ux * h - uy * h * 0.6, y1 - uy * h + ux * h * 0.6);
+        path.moveTo(x1, y1);
+        path.lineTo(x1 - ux * h + uy * h * 0.6, y1 - uy * h - ux * h * 0.6);
       }
+    }
+
+    ctx.lineCap = "round";
+    for (let k = 0; k < BANDS; k++) {
+      ctx.strokeStyle = bandStyle[k].color;
+      ctx.lineWidth = bandStyle[k].width;
+      ctx.stroke(paths[k]);
     }
 
     for (const p of ps) drawCharge(p.x, p.y, p.q);
@@ -106,23 +118,36 @@
   }
 
   function loop(ts) {
+    if (!running) return;
+    rafId = requestAnimationFrame(loop);
+    if (last >= 0 && ts - last < FRAME_MS) return;
+    last = ts;
     t = ts;
-    mouse.x += (mouse.tx - mouse.x) * 0.18;
-    mouse.y += (mouse.ty - mouse.y) * 0.18;
+    mouse.x += (mouse.tx - mouse.x) * 0.3;
+    mouse.y += (mouse.ty - mouse.y) * 0.3;
     draw();
-    if (running) rafId = requestAnimationFrame(loop);
   }
 
+  /* ---------- Interação ---------- */
   const host = canvas.closest(".hero") || canvas;
-  host.addEventListener("pointermove", e => {
+  function moveTo(e, snap) {
     const r = canvas.getBoundingClientRect();
     mouse.tx = e.clientX - r.left; mouse.ty = e.clientY - r.top;
-    if (!mouse.on) { mouse.x = mouse.tx; mouse.y = mouse.ty; mouse.on = true; }
+    if (!mouse.on || snap) { mouse.x = mouse.tx; mouse.y = mouse.ty; mouse.on = true; }
     if (reduce) { mouse.x = mouse.tx; mouse.y = mouse.ty; draw(); }
+  }
+  host.addEventListener("pointermove", e => { if (e.pointerType === "mouse") moveTo(e); });
+  host.addEventListener("pointerleave", e => {
+    if (e.pointerType !== "mouse") return;
+    mouse.on = false; if (reduce) draw();
   });
-  host.addEventListener("pointerleave", () => { mouse.on = false; if (reduce) draw(); });
+  // no toque não há pointermove: o toque posiciona a carga ali (e o click a seguir inverte o sinal)
+  host.addEventListener("pointerdown", e => {
+    if (e.pointerType !== "mouse" && !e.target.closest("a, button")) moveTo(e, true);
+  });
   host.addEventListener("click", e => {
     if (e.target.closest("a, button")) return;
+    if (!mouse.on) moveTo(e, true);
     mouse.q = -mouse.q;
     const badge = document.getElementById("charge-sign");
     if (badge) {
@@ -135,11 +160,13 @@
   // pausa quando o hero sai da tela
   new IntersectionObserver(([en]) => {
     if (reduce) return;
-    if (en.isIntersecting && !running) { running = true; rafId = requestAnimationFrame(loop); }
+    if (en.isIntersecting && !running) { running = true; last = -1; rafId = requestAnimationFrame(loop); }
     else if (!en.isIntersecting) { running = false; cancelAnimationFrame(rafId); }
   }).observe(canvas);
 
-  window.addEventListener("resize", resize);
+  // redimensiona quando o próprio hero muda de tamanho (troca de fonte, barra do navegador etc.)
+  if ("ResizeObserver" in window) new ResizeObserver(resize).observe(canvas);
+  else window.addEventListener("resize", resize);
   resize();
   if (reduce) draw(); else rafId = requestAnimationFrame(loop);
 })();

@@ -30,35 +30,46 @@
       const open = nav.classList.toggle("open");
       btn.setAttribute("aria-expanded", open);
     });
-    $$(".nav-links a", nav).forEach(a => a.addEventListener("click", () => {
+    const closeMenu = () => {
       nav.classList.remove("open");
       btn && btn.setAttribute("aria-expanded", "false");
-    }));
+    };
+    $$(".nav-links a", nav).forEach(a => a.addEventListener("click", closeMenu));
+    document.addEventListener("keydown", ev => {
+      if (ev.key === "Escape" && nav.classList.contains("open")) { closeMenu(); btn && btn.focus(); }
+    });
 
-    // link ativo conforme a seção visível
-    const links = $$('.nav-links a[href^="#"], .nav-links a[href*="index.html#"]', nav);
+    // link ativo conforme a seção visível (só links de texto; o botão CTA nunca fica "ativo")
+    const links = $$('.nav-links a:not(.btn)', nav).filter(a => a.getAttribute("href").startsWith("#"));
     const map = new Map();
     links.forEach(a => {
-      const id = a.getAttribute("href").split("#")[1];
-      const sec = id && document.getElementById(id);
+      const sec = document.getElementById(a.getAttribute("href").slice(1));
       if (sec) map.set(sec, a);
     });
     if (map.size) {
-      const io = new IntersectionObserver(entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            links.forEach(l => l.classList.remove("active"));
-            map.get(e.target).classList.add("active");
-          }
-        });
-      }, { rootMargin: "-45% 0px -50% 0px" });
-      map.forEach((_, sec) => io.observe(sec));
+      const io = new IntersectionObserver(entries => entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const a = map.get(e.target); // undefined no hero / seções sem link → limpa
+        links.forEach(l => l.classList.toggle("active", l === a));
+      }), { rootMargin: "-45% 0px -50% 0px" });
+      $$("main > section").forEach(s => io.observe(s));
     }
   }
 
   /* ---------- Reveal ---------- */
+  // Depois da animação de entrada, remove as classes para não sobrescrever as transições de hover.
   const revealIO = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); revealIO.unobserve(e.target); } });
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      el.classList.add("in");
+      revealIO.unobserve(el);
+      el.addEventListener("transitionend", function done(ev) {
+        if (ev.target !== el) return;
+        el.classList.remove("reveal", "in");
+        el.removeEventListener("transitionend", done);
+      });
+    });
   }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
   window.LAVINA_REVEAL = el => revealIO.observe(el);
   $$(".reveal").forEach(el => revealIO.observe(el));

@@ -26,6 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>document.documentElement.classList.add("js")</script>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -38,10 +39,10 @@
         <img class="logo-mark" src="assets/img/logo.svg" alt="" width="34" height="34">
         <span class="logo-text">LAVINA<small>Laboratório Virtual</small></span>
       </a>
-      <button class="menu-btn" type="button" aria-label="Abrir menu" aria-expanded="false">
+      <button class="menu-btn" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
       </button>
-      <nav class="nav-links" aria-label="Principal">
+      <nav class="nav-links" id="menu" aria-label="Principal">
         <a href="#experimentos">Experimentos</a>
         <a href="#como-funciona">Como funciona</a>
         <a href="#sobre">Sobre o projeto</a>
@@ -69,13 +70,13 @@
             <div class="stat"><strong id="exp-count">7</strong><span>simulações prontas</span></div>
             <div class="stat"><strong>100%</strong><span>gratuito e online</span></div>
             <div class="stat"><strong>0</strong><span>instalações</span></div>
-            <div class="stat"><strong>2020</strong><span>desde</span></div>
+            <div class="stat"><strong>2020</strong><span>início do projeto</span></div>
           </div>
         </div>
       </div>
       <div class="hero-hint" aria-hidden="true">
         <span class="dot"></span>
-        <span>Você é uma carga <b id="charge-sign" data-sign="pos">positiva (+)</b> · clique para inverter</span>
+        <span>Você é uma carga <b id="charge-sign" data-sign="pos">positiva (+)</b> · <span class="hint-mouse">clique para inverter</span><span class="hint-touch">toque para mover e inverter</span></span>
       </div>
     </section>
 
@@ -186,7 +187,7 @@
       <div class="container about-grid">
         <div class="reveal">
           <span class="eyebrow">Sobre o projeto</span>
-          <div class="acronym" style="margin-top: 24px" aria-label="LAboratório VIrtual INterAtivo">
+          <div class="acronym" style="margin-top: 24px">
             <div><b>LA</b>boratório</div>
             <div><b>VI</b>rtual</div>
             <div><b>IN</b>ter<b>A</b>tivo</div>
@@ -235,7 +236,7 @@
           <p>Simulações interativas e gratuitas para tornar o aprendizado de física mais acessível, visual e divertido.</p>
         </div>
         <div>
-          <h4>Navegação</h4>
+          <h2 class="foot-title">Navegação</h2>
           <ul>
             <li><a href="#top">Início</a></li>
             <li><a href="#experimentos">Experimentos</a></li>
@@ -244,7 +245,7 @@
           </ul>
         </div>
         <div>
-          <h4>Experimentos</h4>
+          <h2 class="foot-title">Experimentos</h2>
           <ul id="foot-exps"></ul>
         </div>
       </div>

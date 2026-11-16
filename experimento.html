@@ -26,6 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>document.documentElement.classList.add("js")</script>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -37,10 +38,10 @@
         <img class="logo-mark" src="assets/img/logo.svg" alt="" width="34" height="34">
         <span class="logo-text">LAVINA<small>Laboratório Virtual</small></span>
       </a>
-      <button class="menu-btn" type="button" aria-label="Abrir menu" aria-expanded="false">
+      <button class="menu-btn" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
       </button>
-      <nav class="nav-links" aria-label="Principal">
+      <nav class="nav-links" id="menu" aria-label="Principal">
         <a href="index.html#experimentos" class="active">Experimentos</a>
         <a href="index.html#como-funciona">Como funciona</a>
         <a href="index.html#sobre">Sobre o projeto</a>
@@ -49,7 +50,8 @@
     </div>
   </header>
 
-  <main id="exp-root"></main>
+  <main>
+  <div id="exp-root"></div>
 
   <section class="section" id="more" style="padding-bottom: 0">
     <div class="container">
@@ -60,6 +62,7 @@
       <div class="grid" id="more-grid"></div>
     </div>
   </section>
+  </main>
 
   <footer>
     <div class="container">
@@ -72,7 +75,7 @@
           <p>Simulações interativas e gratuitas para tornar o aprendizado de física mais acessível, visual e divertido.</p>
         </div>
         <div>
-          <h4>Navegação</h4>
+          <h2 class="foot-title">Navegação</h2>
           <ul>
             <li><a href="index.html">Início</a></li>
             <li><a href="index.html#experimentos">Experimentos</a></li>
@@ -81,7 +84,7 @@
           </ul>
         </div>
         <div>
-          <h4>Experimentos</h4>
+          <h2 class="foot-title">Experimentos</h2>
           <ul id="foot-exps"></ul>
         </div>
       </div>

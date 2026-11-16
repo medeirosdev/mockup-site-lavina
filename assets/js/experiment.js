@@ -73,19 +73,21 @@
         </div>
         <div class="frame-wrap" id="frame-wrap">
           <div class="loading"><div><div class="spinner"></div>Carregando simulação…</div></div>
-          <iframe id="frame" src="${esc(e.url)}" title="Simulação: ${esc(e.title)}" allow="fullscreen" allowfullscreen loading="eager"></iframe>
+          <iframe id="frame" src="${esc(e.url)}" title="Simulação: ${esc(e.title)}" allow="fullscreen" loading="eager"></iframe>
         </div>
       </div>
       <a class="btn btn-primary mobile-open" href="${esc(e.url)}" target="_blank" rel="noopener">Abrir simulação em tela cheia ${svg.ext}</a>
 
       <div class="exp-layout">
-        <div class="panel reveal">
+        ${(e.uses || []).length ? `<div class="panel reveal">
           <h2>${svg.bulb} Sugestões de uso</h2>
           <ol class="uses">${e.uses.map(u => `<li>${esc(u)}</li>`).join("")}</ol>
-        </div>
+        </div>` : ""}
         <div class="panel reveal" data-d="1">
           <h2>${svg.atom} Conceitos envolvidos</h2>
-          <div class="concepts">${e.concepts.map(c => `<span>${esc(c)}</span>`).join("")}</div>
+          ${(e.concepts || []).length
+            ? `<div class="concepts">${e.concepts.map(c => `<span>${esc(c)}</span>`).join("")}</div>`
+            : `<p style="color:var(--muted);margin:0">Em breve mais informações sobre este experimento.</p>`}
           <dl class="meta">
             <div><dt>Área</dt><dd>${esc(e.area)}</dd></div>
             <div><dt>Plataforma</dt><dd>Navegador · desktop e tablet</dd></div>
@@ -117,9 +119,12 @@
       return;
     }
     const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
-    if (!req) { window.open(e.url, "_blank", "noopener"); return; }
-    const p = req.call(wrap);
-    if (p && p.catch) p.catch(() => {});
+    const fallback = () => window.open(e.url, "_blank", "noopener");
+    if (!req) return fallback();
+    try {
+      const p = req.call(wrap);
+      if (p && p.catch) p.catch(fallback);
+    } catch (_) { fallback(); }
   }
   document.getElementById("btn-full").addEventListener("click", toggleFullscreen);
 
@@ -193,8 +198,7 @@
 
   function renderMore(skip) {
     const grid = document.getElementById("more-grid");
-    const others = EXP.filter((_, i) => i !== skip);
-    const pick = skip < 0 ? others.slice(0, 3) : [1, 2, 3].map(k => EXP[(skip + k) % EXP.length]);
+    const pick = (skip < 0 ? EXP : [...EXP.slice(skip + 1), ...EXP.slice(0, skip)]).slice(0, 3);
     grid.innerHTML = pick.map((x, i) => window.LAVINA_CARD(x, i + 1)).join("");
     grid.querySelectorAll(".reveal").forEach(el => window.LAVINA_REVEAL(el));
     window.LAVINA_GLOW(grid);
